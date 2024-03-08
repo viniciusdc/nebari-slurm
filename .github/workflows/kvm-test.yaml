@@ -48,10 +48,11 @@
             echo "adapter_name=$(cat network_info.txt | head -1 | awk '{print $2}')" >> $GITHUB_ENV
             echo "ip_range=$(cat network_info.txt | awk 'NR > 1 && $3 {print $3}')" >> $GITHUB_ENV
 
-        - name: Update Firewall IP range and Host network adapter
+        - name: Update group vars
           run: |
             echo "firewall_internal_ip_range: $ip_range" >> deploy/group_vars/all.yaml
             echo "internal_interface: $adapter_name" >> deploy/group_vars/all.yaml
+            echo "SlurmConfigFileDIr: /etc/slurm" >> deploy/group_vars/all.yaml
 
         - name: Run ansible playbook
           run: |

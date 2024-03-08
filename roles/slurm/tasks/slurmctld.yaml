@@ -64,8 +64,7 @@
   ansible.builtin.apt:
     state: latest
     cache_valid_time: 3600
-    name:
-      - slurmctld
+    name: slurmctld
   register: _slurmctld_package
 
 - name: Ensure slurmctld is enabled on boot
