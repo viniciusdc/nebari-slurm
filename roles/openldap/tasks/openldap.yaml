@@ -48,32 +48,30 @@
   become: true
   ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/db.ldif
 
-- name: Attempt to load ldap root entry
-  block:
-    - name: Load ldap root entry
-      community.general.ldap_entry:
-        server_uri: "{{ openldap_server_uri }}"
-        bind_dn: "{{ openldap_base_dn }}"
-        bind_pw: "{{ openldap_bind_password }}"
-        dn: "{{ openldap_base_dn }}"
-        objectClass:
-          - top
-          - domain
-  rescue:
-    - name: Wait before retry
-      pause:
-        seconds: 10 # Adjust the delay as needed
-      when: ansible_loop.index < 3 # Adjust the number of retries as needed
+- name: Ensure LDPA service is running
+  become: true
+  ansible.builtin.systemd:
+    name: slapd
+    state: started
+    enabled: true
 
-    - name: Retry loading ldap root entry
-      community.general.ldap_entry:
-        server_uri: "{{ openldap_server_uri }}"
-        bind_dn: "{{ openldap_base_dn }}"
-        bind_pw: "{{ openldap_bind_password }}"
-        dn: "{{ openldap_base_dn }}"
-        objectClass:
-          - top
-          - domain
-      loop: "{{ range(1, 4) | list }}" # This will try 3 times in total
-      loop_control:
-        extended: yes
+- name: Wait for keycloak to be up
+  ansible.builtin.uri:
+    url: http://localhost:{{ keycloak_port }}/auth/admin/master/console/
+    follow_redirects: none
+    method: GET
+  register: _result
+  until: _result.status == 200
+  retries: 30
+  delay: 5
+  changed_when: false
+
+- name: Load ldap root entry
+  community.general.ldap_entry:
+    server_uri: "{{ openldap_server_uri }}"
+    bind_dn: "{{ openldap_base_dn }}"
+    bind_pw: "{{ openldap_bind_password }}"
+    dn: "{{ openldap_base_dn }}"
+    objectClass:
+      - top
+      - domain
