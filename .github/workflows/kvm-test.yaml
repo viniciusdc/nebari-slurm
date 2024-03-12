@@ -12,62 +12,62 @@
       name: KVM Test
       runs-on: "ubuntu-latest"
       steps:
-        - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-        - uses: actions/setup-python@v5
-          with:
-            python-version: "3.10"
-            cache: "pip"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
 
-        - name: Update system dependcies (test to improve apt-get efficiency)
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y software-properties-common
-            sudo apt-get update -&& sudo apt-get upgrade -y
+      # - name: Update system dependcies (test to improve apt-get efficiency)
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y software-properties-common
+      #     sudo apt-get update -&& sudo apt-get upgrade -y
 
-        - name: Install dependencies
-          run: |
-            pip install ansible
+      - name: Install dependencies
+        run: |
+          pip install ansible
 
-        - name: Install Ansible dependencies
-          run: |
-            ansible-galaxy collection install -r requirements.yaml
+      - name: Install Ansible dependencies
+        run: |
+          ansible-galaxy collection install -r requirements.yaml
 
-        - name: Create deploy folder and move inventory files
-          run: |
-            mkdir deploy
-            cp -r inventory.template/* deploy/
-            cp .github/inventory.ini deploy/inventory.ini
+      - name: Create deploy folder and move inventory files
+        run: |
+          mkdir deploy
+          cp -r inventory.template/* deploy/
+          cp .github/inventory.ini deploy/inventory.ini
 
-        - name: Check network adapter
-          run: |
-            ip a
+      - name: Check network adapter
+        run: |
+          ip a
 
-        - name: Check hosts
-          run: |
-            cat /etc/hosts
+      - name: Check hosts
+        run: |
+          cat /etc/hosts
 
-        - name: Extract Network Information
-          run: |
-            chmod +x .github/scripts/extract_network_info.sh
-            ./.github/scripts/extract_network_info.sh
-            echo "adapter_name=$(cat network_info.txt | head -1 | awk '{print $2}')" >> $GITHUB_ENV
-            echo "ip_range=$(cat network_info.txt | awk 'NR > 1 && $3 {print $3}')" >> $GITHUB_ENV
+      - name: Extract Network Information
+        run: |
+          chmod +x .github/scripts/extract_network_info.sh
+          ./.github/scripts/extract_network_info.sh
+          echo "adapter_name=$(cat network_info.txt | head -1 | awk '{print $2}')" >> $GITHUB_ENV
+          echo "ip_range=$(cat network_info.txt | awk 'NR > 1 && $3 {print $3}')" >> $GITHUB_ENV
 
-        - name: Update group vars
-          run: |
-            echo "firewall_internal_ip_range: $ip_range" >> deploy/group_vars/all.yaml
-            echo "internal_interface: $adapter_name" >> deploy/group_vars/all.yaml
-            echo "SlurmConfigFileDIr: /etc/slurm" >> deploy/group_vars/all.yaml
-
-        - name: Run ansible playbook
-          run: |
-            cd deploy
-            ansible-playbook ../playbook.yaml -i inventory.ini --connection=local -v
-          env:
-            ANSIBLE_FORCE_COLOR: True
+      - name: Update group vars
+        run: |
+          echo "firewall_internal_ip_range: $ip_range" >> deploy/group_vars/all.yaml
+          echo "internal_interface: $adapter_name" >> deploy/group_vars/all.yaml
+          echo "SlurmConfigFileDIr: /etc/slurm" >> deploy/group_vars/all.yaml
       # debug ci session
-        - name: Setup tmate session
-          uses: mxschmitt/action-tmate@v3
-          with:
-            detached: true
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          detached: true
+
+      - name: Run ansible playbook
+        run: |
+          cd deploy
+          ansible-playbook ../playbook.yaml -i inventory.ini --connection=local -v
+        env:
+          ANSIBLE_FORCE_COLOR: True
