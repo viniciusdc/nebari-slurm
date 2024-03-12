@@ -52,9 +52,13 @@
 
       - name: Update group vars
         run: |
+          echo "Updating group vars for firewall and internal network"
           echo "firewall_internal_ip_range: $ip_range" >> deploy/group_vars/all.yaml
           echo "internal_interface: $adapter_name" >> deploy/group_vars/all.yaml
           echo "SlurmConfigFileDIr: /etc/slurm" >> deploy/group_vars/all.yaml
+
+          echo "Replace hpc01-test with $(hostname -s) in group_vars/hpc_worker.yaml file"
+          sed -i "s/hpc01-test/$(hostname -s)/g" deploy/group_vars/hpc_worker.yaml
 
       - name: Disable unattended-upgrades
         run: |
