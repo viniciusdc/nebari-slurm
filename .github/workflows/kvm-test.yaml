@@ -19,12 +19,6 @@
           python-version: "3.10"
           cache: "pip"
 
-      # - name: Update system dependcies (test to improve apt-get efficiency)
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y software-properties-common
-      #     sudo apt-get update -&& sudo apt-get upgrade -y
-
       - name: Install dependencies
         run: |
           pip install ansible
@@ -61,6 +55,22 @@
           echo "firewall_internal_ip_range: $ip_range" >> deploy/group_vars/all.yaml
           echo "internal_interface: $adapter_name" >> deploy/group_vars/all.yaml
           echo "SlurmConfigFileDIr: /etc/slurm" >> deploy/group_vars/all.yaml
+
+      - name: Disable unattended-upgrades
+        run: |
+          sudo systemctl stop unattended-upgrades
+          sudo systemctl disable unattended-upgrades
+
+          export DEBIAN_FRONTEND=noninteractive
+
+          # Check for running apt processes and kill if necessary, without manual confirmation
+          echo "Checking and killing running APT processes if necessary..."
+          sudo lsof /var/lib/dpkg/lock-frontend | awk '{print $2}' | tail -n +2 | while read PID; do
+              if [ ! -z "$PID" ]; then
+                  echo "Killing PID $PID"
+                  sudo kill -9 $PID
+              fi
+          done
 
       - name: Run ansible playbook
         run: |
