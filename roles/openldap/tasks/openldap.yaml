@@ -55,17 +55,6 @@
     state: started
     enabled: true
 
-- name: Wait for keycloak to be up
-  ansible.builtin.uri:
-    url: http://localhost:{{ keycloak_port }}/auth/admin/master/console/
-    follow_redirects: none
-    method: GET
-  register: _result
-  until: _result.status == 200
-  retries: 30
-  delay: 5
-  changed_when: false
-
 - name: Load ldap root entry
   community.general.ldap_entry:
     server_uri: "{{ openldap_server_uri }}"
