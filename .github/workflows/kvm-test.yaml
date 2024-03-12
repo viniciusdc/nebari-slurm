@@ -66,3 +66,8 @@
             ansible-playbook ../playbook.yaml -i inventory.ini --connection=local -v
           env:
             ANSIBLE_FORCE_COLOR: True
+      # debug ci session
+        - name: Setup tmate session
+          uses: mxschmitt/action-tmate@v3
+          with:
+            detached: true
