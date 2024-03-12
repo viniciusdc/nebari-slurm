@@ -37,7 +37,9 @@
         run: |
           mkdir deploy
           cp -r inventory.template/* deploy/
-          cp .github/inventory.ini deploy/inventory.ini
+
+          chmod +x .github/scripts/gen_inventory.sh
+          ./.github/scripts/gen_inventory.sh $(hostname -s) deploy/inventory.ini
 
       - name: Check network adapter
         run: |
@@ -59,11 +61,6 @@
           echo "firewall_internal_ip_range: $ip_range" >> deploy/group_vars/all.yaml
           echo "internal_interface: $adapter_name" >> deploy/group_vars/all.yaml
           echo "SlurmConfigFileDIr: /etc/slurm" >> deploy/group_vars/all.yaml
-      # debug ci session
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          detached: true
 
       - name: Run ansible playbook
         run: |

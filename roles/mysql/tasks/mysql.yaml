@@ -5,6 +5,7 @@
   register: mysql_installed
 
 - name: Update apt cache if MySQL is not yet installed.
+  become: true
   ansible.builtin.apt:
     update_cache: yes
   changed_when: False
