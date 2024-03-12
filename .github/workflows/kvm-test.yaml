@@ -58,12 +58,18 @@
 
       - name: Disable unattended-upgrades
         run: |
-          sudo systemctl stop unattended-upgrades
-          sudo systemctl disable unattended-upgrades
-
+          # Ensure all commands are non-interactive by setting DEBIAN_FRONTEND to noninteractive
           export DEBIAN_FRONTEND=noninteractive
 
-          # Check for running apt processes and kill if necessary, without manual confirmation
+          # Check if unattended-upgrades service is active and stop it if it is
+          if systemctl is-active --quiet unattended-upgrades; then
+              echo "Stopping unattended-upgrades service..."
+              sudo systemctl stop unattended-upgrades
+          else
+              echo "unattended-upgrades service is not active. Skipping stop command."
+          fi
+
+          # Proceed with killing any running APT processes without manual confirmation
           echo "Checking and killing running APT processes if necessary..."
           sudo lsof /var/lib/dpkg/lock-frontend | awk '{print $2}' | tail -n +2 | while read PID; do
               if [ ! -z "$PID" ]; then
@@ -71,6 +77,14 @@
                   sudo kill -9 $PID
               fi
           done
+
+          # Configure any packages that are in an unclean state non-interactively
+          echo "Configuring any packages in an unclean state..."
+          sudo dpkg --configure -a
+
+          # Remove unattended-upgrades to avoid automatic background updates during script execution
+          echo "Disabling unattended upgrades..."
+          sudo apt-get remove --purge unattended-upgrades -y || true
 
       - name: Run ansible playbook
         run: |
