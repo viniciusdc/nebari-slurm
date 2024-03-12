@@ -19,6 +19,12 @@
             python-version: "3.10"
             cache: "pip"
 
+        - name: Update system dependcies (test to improve apt-get efficiency)
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y software-properties-common
+            sudo apt-get update -&& sudo apt-get upgrade -y
+
         - name: Install dependencies
           run: |
             pip install ansible
