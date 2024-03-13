@@ -90,6 +90,11 @@
           echo "Disabling unattended upgrades..."
           sudo apt-get remove --purge unattended-upgrades -y || true
 
+      - name:  Run ssh session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          detached: true
+
       - name: Run ansible playbook
         run: |
           cd deploy
