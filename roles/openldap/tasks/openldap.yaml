@@ -56,7 +56,6 @@
     enabled: true
 
 - name: Load ldap root entry
-  become: true
   community.general.ldap_entry:
     server_uri: "{{ openldap_server_uri }}"
     bind_dn: "{{ openldap_base_dn }}"
