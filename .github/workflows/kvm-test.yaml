@@ -60,6 +60,9 @@
           echo "Replace hpc01-test with $(hostname -s) in group_vars/hpc_worker.yaml file"
           sed -i "s/hpc01-test/$(hostname -s)/g" deploy/group_vars/hpc_worker.yaml
 
+          echo "Replace LDAP server URI with $(hostname -s) in group_vars/ldap_server.yaml file"
+          sed -i 's|ldap://hpc01-test:389|ldap://$(hostname -s):389|g' deploy/group_vars/all.yaml
+
       - name: Disable unattended-upgrades
         run: |
           # Ensure all commands are non-interactive by setting DEBIAN_FRONTEND to noninteractive
@@ -90,10 +93,10 @@
           echo "Disabling unattended upgrades..."
           sudo apt-get remove --purge unattended-upgrades -y || true
 
-      - name:  Run ssh session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          detached: true
+      # - name:  Run ssh session
+      #   uses: mxschmitt/action-tmate@v3
+      #   with:
+      #     detached: true
 
       - name: Run ansible playbook
         run: |
