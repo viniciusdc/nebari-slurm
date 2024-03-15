@@ -1,22 +1,40 @@
 ---
 # https://stackoverflow.com/questions/57079707/slurm-and-munge-invalid-credential
-- name: Ensure munge gid is fixed
-  become: true
-  ansible.builtin.group:
-    name: munge
-    gid: 151
+- name: Ensure munge gid and uid are fixed
+  block:
+    - name: Ensure munge gid is fixed
+      become: true
+      ansible.builtin.group:
+        name: munge
+        gid: 151
 
-- name: Ensure munge uid fixed
-  become: true
-  ansible.builtin.user:
-    name: munge
-    groups: munge
-    append: true
-    shell: /usr/sbin/nologin
-    system: true
-    create_home: false
-    home: /
-    uid: 150
+    - name: Ensure munge uid is fixed
+      become: true
+      ansible.builtin.user:
+        name: munge
+        groups: munge
+        append: true
+        shell: /usr/sbin/nologin
+        system: true
+        create_home: false
+        home: /
+        uid: 150
+
+  rescue:
+    - name: Identify process causing the issue
+      become: true
+      ansible.builtin.shell: |
+        ps -u munge -o pid,comm,cmd:50 --sort=start_time
+      register: problematic_process
+      failed_when: false
+
+    - name: Display the process details
+      ansible.builtin.debug:
+        msg: "{{ problematic_process.stdout_lines }}"
+
+    - name: Additional instructions for manual intervention
+      ansible.builtin.debug:
+        msg: "Please manually terminate the above processes/services and retry. Use the command or service name to locate the corresponding startup script or service file for later restart."
 
 - name: Check munge directory
   become: true
