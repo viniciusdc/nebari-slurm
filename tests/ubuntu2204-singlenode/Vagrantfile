@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     hpc01.vm.hostname = HPC01_TEST
     hpc01.vm.provider "libvirt" do |libvirthpc01|
       libvirthpc01.memory = 16384
-      libvirthpc01.cpus = 4
+      libvirthpc01.cpus = 6
     end
   end
 
@@ -19,12 +19,12 @@ Vagrant.configure("2") do |config|
   config.vm.provision 'shell', inline: "if grep 'DNSSEC=yes' /etc/systemd/resolved.conf; then sed -i 's/DNSSEC=yes/DNSSEC=no/g' /etc/systemd/resolved.conf; systemctl restart systemd-resolved.service; fi", privileged: true
 
 
-  # config.vm.provision "ansible" do |ansible|
-  #   ansible.playbook = "../../playbook.yaml"
-  #   ansible.groups = {
-  #     "hpc_master" => [HPC01_TEST],
-  #     "hpc_worker" => [HPC01_TEST],
-  #     "partition_example" => [HPC01_TEST],
-  #   }
-  # end
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "../../playbook.yaml"
+    ansible.groups = {
+      "hpc_master" => [HPC01_TEST],
+      "hpc_worker" => [HPC01_TEST],
+      "partition_example" => [HPC01_TEST],
+    }
+  end
 end
