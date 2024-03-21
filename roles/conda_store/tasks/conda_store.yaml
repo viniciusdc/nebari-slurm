@@ -1,14 +1,14 @@
 ---
-- name: Check that the conda-store-server exists
-  ansible.builtin.stat:
-    path: /opt/conda/envs/conda-store/bin/conda-store-server
-  register: _conda_store_stat
-
 - name: Install conda-store environment
   ansible.builtin.include_role:
     name: conda_environment
   vars:
     environment_path: "{{ conda_store_environment }}"
+
+- name: Check that the conda-store-server exists
+  ansible.builtin.stat:
+    path: /opt/conda/envs/conda-store/bin/conda-store-server
+  register: _conda_store_stat
 
 - name: Create conda-store config directory
   become: true
