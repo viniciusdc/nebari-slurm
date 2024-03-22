@@ -5,34 +5,34 @@ dependencies:
   - python ==3.10
   - conda-store-server=={{ conda_store_version }}
   # conda environment builds
-  - conda ==23.5.2
-  - python-docker
-  - conda-docker >= 0.1.2
-  - conda-pack
+  # - conda ==23.5.2
+  # - python-docker # already present as conda-store-server dependency
+  # - conda-docker >= 0.1.2 # already present as conda-store-server dependency
+  # - conda-pack # Already present as conda-store-server dependency
   - conda-lock >=1.0.5
   - conda-package-handling
   - conda-package-streaming
   # web server
-  - celery
+  # - celery
   - flower
   - redis-py
   - sqlalchemy<=1.4.47
   - alembic
   - psycopg2
   - pymysql
-  - requests
-  - pyyaml
+  # - requests
+  # - pyyaml
   - uvicorn
-  - fastapi
-  - pydantic < 2.0
-  - traitlets
+  # - fastapi
+  # - pydantic < 2.0
+  # - traitlets
   - yarl
   - pyjwt
-  - filelock
+  # - filelock
   - itsdangerous
-  - jinja2
-  - python-multipart
+  # - jinja2
+  # - python-multipart
   # artifact storage
-  - minio
+  # - minio
   # installer
   - constructor
